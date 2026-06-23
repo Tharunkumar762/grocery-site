@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login page</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+
+<div class="hero">
+    <div class="form-box">
+        <div class="button-box">
+            <div id="btn"></div>
+            <button type="button" class="toggle-btn" onclick="showLogin()">Log In</button>
+            <button type="button" class="toggle-btn" onclick="showRegister()">Register</button>
+        </div>
+
+        <div class="social-icons">
+            <a href="https://www.facebook.com"><img src="loginimg/fb.png"></a>
+            <a href="https://x.com"><img src="loginimg/tw.png"></a>
+            <a href="https://www.google.com"><img src="loginimg/gp.png"></a>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <form id="Login" class="input-group">
+            <input type="email" id="login-email" class="input-field" placeholder="Email" required>
+            <input type="password" id="login-password" class="input-field" placeholder="Password" required>
+            <input type="checkbox" class="check-box"><span>Remember Password</span>
+            <button type="submit" class="submit-btn">Log In</button>
+        </form>
+
+        <!-- REGISTER FORM -->
+        <form id="register" class="input-group">
+            <input type="text" id="username" class="input-field" placeholder="Username" required>
+            <input type="email" id="email" class="input-field" placeholder="Email" required>
+            <input type="password" id="password" class="input-field" placeholder="Password" required>
+            <input type="checkbox" class="check-box"><span>I agree to the terms & conditions</span>
+            <button type="submit" class="submit-btn">Register</button>
+        </form>
+    </div>
+</div>
+
+<script>
+/* ---------------- UI TOGGLE ---------------- */
+var loginForm = document.getElementById("Login");
+var registerForm = document.getElementById("register");
+var btn = document.getElementById("btn");
+
+function showRegister() {
+    loginForm.style.left = "-400px";
+    registerForm.style.left = "50px";
+    btn.style.left = "110px";
+}
+
+function showLogin() {
+    loginForm.style.left = "50px";
+    registerForm.style.left = "450px";
+    btn.style.left = "0";
+}
+
+/* ---------------- REGISTER ---------------- */
+registerForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            username: document.getElementById("username").value,
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("Registration successful! Please login.");
+            showLogin();
+            registerForm.reset();
+        } else {
+            alert(data.message || "Registration failed");
+        }
+    })
+    .catch(() => alert("Backend not reachable"));
+});
+
+/* ---------------- LOGIN ---------------- */
+loginForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            email: document.getElementById("login-email").value,
+            password: document.getElementById("login-password").value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            localStorage.setItem("user_id", data.user_id);
+            localStorage.setItem("username", data.username);
+            window.location.href = "index.html";
+        } else {
+            alert("Invalid Credentials");
+        }
+    })
+    .catch(() => alert("Backend not reachable"));
+});
+</script>
+
+</body>
+</html>

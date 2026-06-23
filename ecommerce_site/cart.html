@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopping Cart</title>
+
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    background:#f5f5f5;
+}
+
+.header{
+    background:#fff;
+    padding:20px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,.1);
+}
+
+.header h1{
+    color:#4CAF50;
+    font-size:32px;
+}
+
+.cart-container{
+    width:90%;
+    max-width:1000px;
+    margin:40px auto;
+}
+
+.cart-item{
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:15px;
+    box-shadow:0 3px 10px rgba(0,0,0,.1);
+    transition:.4s;
+    cursor:pointer;
+}
+
+.cart-item:hover{
+    transform:translateY(-8px);
+    box-shadow:0 10px 25px rgba(0,0,0,.2);
+}
+
+.cart-item img{
+    width:120px;
+    transition:.4s;
+}
+
+.cart-item:hover img{
+    transform:scale(1.1) rotate(5deg);
+}
+
+.product-details{
+    flex:1;
+    margin-left:20px;
+}
+
+.product-details h3{
+    color:#333;
+}
+
+.price{
+    color:#4CAF50;
+    font-size:22px;
+    font-weight:bold;
+}
+
+.summary{
+    background:#fff;
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 3px 10px rgba(0,0,0,.1);
+}
+
+.checkout-btn{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:30px;
+    background:linear-gradient(to right,#43c443,#34a853);
+    color:#fff;
+    font-size:18px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.4s;
+}
+
+.checkout-btn:hover{
+    transform:scale(1.03);
+}
+
+.empty-cart{
+    text-align:center;
+    font-size:24px;
+    color:#666;
+    margin-top:50px;
+}
+
+.remove-btn{
+    background:red;
+    color:white;
+    border:none;
+    padding:8px 12px;
+    border-radius:8px;
+    cursor:pointer;
+}
+.quantity-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:10px;
+}
+
+.quantity-box button{
+    width:35px;
+    height:35px;
+    border:none;
+    border-radius:50%;
+    background:#4CAF50;
+    color:#fff;
+    font-size:20px;
+    cursor:pointer;
+}
+
+.quantity-box span{
+    font-size:18px;
+    font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1><i class='bx bx-cart'></i> Shopping Cart</h1>
+</div>
+
+<div class="cart-container" id="cart-container"></div>
+
+<script>
+
+let cartItems =
+JSON.parse(localStorage.getItem("cart")) || [];
+
+let container =
+document.getElementById("cart-container");
+
+let total = 0;
+
+function renderCart(){
+
+    container.innerHTML = "";
+
+    total = 0;
+
+    if(cartItems.length === 0){
+
+        container.innerHTML = `
+        <div class="empty-cart">
+            Your Cart Is Empty
+        </div>
+        `;
+
+        return;
+    }
+
+    cartItems.forEach((item,index)=>{
+
+        let price =
+        parseInt(item.price.replace(/[^\d]/g,'')) || 0;
+
+        let qty = item.qty || 1;
+
+        total += price * qty;
+
+        container.innerHTML += `
+        <div class="cart-item">
+
+            <img src="${item.image}" alt="">
+
+            <div class="product-details">
+
+                <h3>${item.name}</h3>
+
+                <div class="quantity-box">
+
+                    <button onclick="decreaseQty(${index})">-</button>
+
+                    <span>${qty}</span>
+
+                    <button onclick="increaseQty(${index})">+</button>
+
+                </div>
+
+            </div>
+
+            <span class="price">
+                ₹${price * qty}
+            </span>
+
+            <button class="remove-btn"
+            onclick="removeItem(${index})">
+                Remove
+            </button>
+
+        </div>
+        `;
+    });
+
+    container.innerHTML += `
+    <div class="summary">
+
+        <h2>Total : ₹${total}</h2>
+
+        <button class="checkout-btn"
+        onclick="window.location.href='payment.html'">
+            Proceed To Payment
+        </button>
+
+    </div>
+    `;
+}
+function removeItem(index){
+
+    cartItems.splice(index,1);
+
+    localStorage.setItem(
+        "cart",
+        JSON.stringify(cartItems)
+    );
+
+    renderCart();
+}
+
+function increaseQty(index){
+
+    cartItems[index].qty++;
+
+    localStorage.setItem(
+        "cart",
+        JSON.stringify(cartItems)
+    );
+
+    renderCart();
+}
+
+function decreaseQty(index){
+
+    if(cartItems[index].qty > 1){
+
+        cartItems[index].qty--;
+
+        localStorage.setItem(
+            "cart",
+            JSON.stringify(cartItems)
+        );
+
+        renderCart();
+    }
+}
+
+renderCart();
+</script>
+
+</body>
+</html>
+
